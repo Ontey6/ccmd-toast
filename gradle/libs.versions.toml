@@ -1,0 +1,13 @@
+[versions]
+kotlin = "2.4.20"
+paper = "26.3.build.175-stable"
+minecraft = "26.3"
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+paperweight-userdev = { id = "io.papermc.paperweight.userdev", version = "2.0.0-beta.24" }
+paper-yml = { id = "de.eldoria.plugin-yml.paper", version = "0.9.0" }
+paper-run = { id = "xyz.jpenilla.run-paper", version = "3.1.0" }
+
+[libraries]
+open-toast-api = { group = "fyi.pauli", name = "open-toast-api", version = "0.0.4" }

@@ -1,0 +1,17 @@
+plugins {
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.paperweight.userdev) apply false
+    alias(libs.plugins.paper.yml) apply false
+    alias(libs.plugins.paper.run) apply false
+}
+
+allprojects {
+    group = "fyi.pauli"
+    version = "0.0.4"
+
+    repositories {
+        mavenCentral()
+        maven("https://repo.pauli.fyi/releases")
+        maven("https://repo.papermc.io/repository/maven-public/")
+    }
+}

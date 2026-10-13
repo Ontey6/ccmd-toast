@@ -14,9 +14,18 @@ import io.papermc.paper.datacomponent.DataComponentTypes
 import io.papermc.paper.datacomponent.item.ResolvableProfile
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import java.util.logging.Logger
+
+private val LOGGER = Logger.getLogger(NAMESPACE)
+
+internal fun fallbackWarn(text: Component) {
+    val plain = PlainTextComponentSerializer.plainText().serialize(text)
+    LOGGER.warning("Toast \"$plain\" does not fit (too long or too many lines), showing a vanilla advancement toast with header.")
+}
 
 sealed class Toast {
     abstract fun show(player: Player)
@@ -70,7 +79,7 @@ private class AdvancementToast(
         }
     }
 
-    private val title by lazy { ToastLayout.advancement(text) ?: text }
+    private val title = ToastLayout.advancement(text) ?: text.also(::fallbackWarn)
 
     override fun show(player: Player) {
         ToastSender.send(player, icon, title, frame)
@@ -87,9 +96,10 @@ private class StyledToast(
     private val symbol: TutorialIcon?,
     private val text: Component,
 ) : Toast() {
-    private val title by lazy { ToastLayout.styled(text, toastStyle, symbol) }
+    private val title = ToastLayout.styled(text, toastStyle, symbol)
 
     private val fallback by lazy {
+        fallbackWarn(text)
         AdvancementToast(icon?.clone() ?: ItemStack.of(Material.PAPER), text, ToastFrame.TASK)
     }
 
@@ -99,7 +109,7 @@ private class StyledToast(
             return
         }
 
-        ToastSender.send(player, icon ?: invisibleIcon(), title!!, ToastFrame.TASK)
+        ToastSender.send(player, icon ?: invisibleIcon(), title, ToastFrame.TASK)
     }
 
     private fun invisibleIcon(): ItemStack {

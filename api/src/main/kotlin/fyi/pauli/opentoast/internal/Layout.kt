@@ -87,9 +87,7 @@ private class ToastText private constructor(val lines: List<Line>) {
     companion object {
         fun of(component: Component, defaultStyle: Style, maxWidth: Int): ToastText? {
             val glyphs = mutableListOf<Glyph>()
-            if (!collect(component, defaultStyle, glyphs)) {
-                return null
-            }
+            collect(component, defaultStyle, glyphs)
 
             val lines = wrap(glyphs, maxWidth)
             if (lines.any { line -> line.width > maxWidth }) {
@@ -99,16 +97,18 @@ private class ToastText private constructor(val lines: List<Line>) {
             return ToastText(lines)
         }
 
-        private fun collect(component: Component, inherited: Style, glyphs: MutableList<Glyph>): Boolean {
+        private fun collect(component: Component, inherited: Style, glyphs: MutableList<Glyph>) {
             val style = component.style().merge(inherited, Style.Merge.Strategy.IF_ABSENT_ON_TARGET)
 
             when (component) {
                 is TextComponent -> component.content().forEach { char -> glyphs += Glyph(char, style) }
                 is ObjectComponent -> glyphs += Glyph(Glyph.SPRITE, style, component)
-                else -> return false
+                else -> throw IllegalArgumentException(
+                    "Toast text may only contain text and object components. ${component::class.simpleName} is not supported."
+                )
             }
 
-            return component.children().all { child -> collect(child, style, glyphs) }
+            component.children().forEach { child -> collect(child, style, glyphs) }
         }
 
         private fun wrap(glyphs: List<Glyph>, maxWidth: Int): List<Line> = buildList {

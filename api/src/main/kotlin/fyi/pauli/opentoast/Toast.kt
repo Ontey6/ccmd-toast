@@ -70,8 +70,9 @@ private class AdvancementToast(
         }
     }
 
+    private val title by lazy { ToastLayout.advancement(text) ?: text }
+
     override fun show(player: Player) {
-        val title = ToastLayout.advancement(text) ?: text
         ToastSender.send(player, icon, title, frame)
     }
 
@@ -86,18 +87,19 @@ private class StyledToast(
     private val symbol: TutorialIcon?,
     private val text: Component,
 ) : Toast() {
+    private val title by lazy { ToastLayout.styled(text, toastStyle, symbol) }
+
+    private val fallback by lazy {
+        AdvancementToast(icon?.clone() ?: ItemStack.of(Material.PAPER), text, ToastFrame.TASK)
+    }
+
     override fun show(player: Player) {
-        val title = ToastLayout.styled(text, toastStyle, symbol)
         if (title == null) {
-            fallback().show(player)
+            fallback.show(player)
             return
         }
 
-        ToastSender.send(player, icon ?: invisibleIcon(), title, ToastFrame.TASK)
-    }
-
-    private fun fallback(): Toast {
-        return AdvancementToast(icon?.clone() ?: ItemStack.of(Material.PAPER), text, ToastFrame.TASK)
+        ToastSender.send(player, icon ?: invisibleIcon(), title!!, ToastFrame.TASK)
     }
 
     private fun invisibleIcon(): ItemStack {

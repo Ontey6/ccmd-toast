@@ -5,3 +5,7 @@
 build
 
 testplugin/run
+
+.idea
+*.iml
+.kotlin

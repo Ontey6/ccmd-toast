@@ -65,7 +65,7 @@ kotlin {
 
 val pack = tasks.register<Zip>("pack") {
     description = "Create resourcepack"
-    from("resourcepack")
+    from(rootProject.file("assets/resourcepack"))
     archiveFileName = "open-toast.zip"
     destinationDirectory = layout.buildDirectory.dir("pack")
     isPreserveFileTimestamps = false

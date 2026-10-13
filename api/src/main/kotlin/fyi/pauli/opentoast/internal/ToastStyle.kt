@@ -3,7 +3,7 @@ package fyi.pauli.opentoast.internal
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
 
-internal enum class Look(val textX: Int, val lineWidth: Int, val textColor: TextColor?) {
+internal enum class ToastStyle(val textX: Int, val lineWidth: Int, val textColor: TextColor?) {
     SYSTEM(18, 134, null),
     RECIPE(30, 122, NamedTextColor.BLACK),
     TUTORIAL(30, 122, NamedTextColor.BLACK);

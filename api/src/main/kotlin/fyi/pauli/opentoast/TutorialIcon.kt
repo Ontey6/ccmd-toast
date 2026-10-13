@@ -1,7 +1,10 @@
 package fyi.pauli.opentoast
 
+/**
+ * https://minecraft.wiki/w/Tutorial_hints
+ */
 enum class TutorialIcon {
-    MOVEMENT_KEYS,
+    WASD,
     MOUSE,
     TREE,
     RECIPE_BOOK,

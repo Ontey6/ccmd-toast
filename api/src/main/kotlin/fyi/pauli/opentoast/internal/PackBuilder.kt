@@ -1,6 +1,7 @@
 package fyi.pauli.opentoast.internal
 
 import com.google.gson.JsonArray
+import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
@@ -11,18 +12,14 @@ internal class PackBuilder(private val vanilla: VanillaAssets) {
 
     private val bitmapProviders: List<JsonObject> by lazy {
         vanilla.json(VanillaAssets.DEFAULT_FONT)["providers"].asJsonArray
-            .map { provider -> provider.asJsonObject }
+            .map(JsonElement::getAsJsonObject)
             .filter { provider -> provider["type"].asString == "bitmap" }
     }
 
     fun build(): ByteArray {
-        for (shift in ToastLayout.fontShifts) {
-            addShiftedFont(shift)
-        }
 
-        for (look in Look.entries) {
-            addBackgrounds(look)
-        }
+        ToastLayout.fontShifts.forEach(::addShiftedFont)
+        ToastStyle.entries.forEach(::addBackgrounds)
 
         return archive.toBytes()
     }
@@ -85,22 +82,22 @@ internal class PackBuilder(private val vanilla: VanillaAssets) {
         return padded
     }
 
-    private fun addBackgrounds(look: Look) {
-        val sprite = VanillaAssets.TOAST_SPRITES + look.id + ".png"
+    private fun addBackgrounds(toastStyle: ToastStyle) {
+        val sprite = VanillaAssets.TOAST_SPRITES + toastStyle.id + ".png"
         val source = vanilla.image(sprite)
-        check(source.width == ToastLayout.TOAST_WIDTH) { "${look.id} toast texture is ${source.width} wide" }
+        check(source.width == ToastLayout.TOAST_WIDTH) { "${toastStyle.id} toast texture is ${source.width} wide" }
         val border = border(sprite)
 
-        for (height in Look.heights) {
+        for (height in ToastStyle.heights) {
             val toast = stretch(source, height, border)
             val right = toast.getSubimage(ToastLayout.TITLE_X, 0, toast.width - ToastLayout.TITLE_X, height)
             val left = toast.getSubimage(0, 0, ToastLayout.TITLE_X, height)
 
             val providers = JsonArray()
-            providers.add(backgroundProvider("${look.id}${height}_right.png", right, ToastLayout.BACKGROUND_RIGHT))
-            providers.add(backgroundProvider("${look.id}${height}_left.png", left, ToastLayout.BACKGROUND_LEFT))
+            providers.add(backgroundProvider("${toastStyle.id}${height}_right.png", right, ToastLayout.BACKGROUND_RIGHT))
+            providers.add(backgroundProvider("${toastStyle.id}${height}_left.png", left, ToastLayout.BACKGROUND_LEFT))
 
-            archive["$FONTS/${look.id}$height.json"] = font(providers)
+            archive["$FONTS/${toastStyle.id}$height.json"] = font(providers)
         }
     }
 
@@ -175,7 +172,8 @@ internal class PackBuilder(private val vanilla: VanillaAssets) {
     private class Border(val top: Int, val bottom: Int)
 
     private companion object {
-        const val STATIC_PACK = "/open-toast-pack.zip"
+        const val STATIC_PACK = "/$NAMESPACE.zip"
+
         const val FONTS = "assets/$NAMESPACE/font"
         const val TEXTURES = "assets/$NAMESPACE/textures/font"
 

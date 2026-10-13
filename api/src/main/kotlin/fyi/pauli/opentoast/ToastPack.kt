@@ -5,6 +5,7 @@ import fyi.pauli.opentoast.internal.PackBuilder
 import fyi.pauli.opentoast.internal.VanillaAssets
 import net.kyori.adventure.resource.ResourcePackInfo
 import net.kyori.adventure.resource.ResourcePackRequest
+import org.bukkit.Bukkit
 import java.net.URI
 import java.nio.file.Path
 import java.security.MessageDigest
@@ -17,11 +18,10 @@ class ToastPack private constructor(val bytes: ByteArray) {
     val id: UUID = UUID.nameUUIDFromBytes(bytes)
 
     @JvmOverloads
-    fun request(url: URI, required: Boolean = true): ResourcePackRequest {
+    fun buildRequest(url: URI, required: Boolean = true): ResourcePackRequest.Builder {
         return ResourcePackRequest.resourcePackRequest()
             .packs(info(url))
             .required(required)
-            .build()
     }
 
     fun info(url: URI): ResourcePackInfo {
@@ -36,7 +36,8 @@ class ToastPack private constructor(val bytes: ByteArray) {
 
     companion object {
         @JvmStatic
-        fun build(cache: Path, minecraftVersion: String): ToastPack {
+        @JvmOverloads
+        fun build(cache: Path, minecraftVersion: String = Bukkit.getMinecraftVersion()): ToastPack {
             val vanilla = VanillaAssets.load(cache, minecraftVersion)
             return ToastPack(PackBuilder(vanilla).build())
         }

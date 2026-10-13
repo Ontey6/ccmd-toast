@@ -13,7 +13,7 @@ internal class PackArchive private constructor(private val files: SortedMap<Stri
 
     fun addAssets(other: PackArchive) {
         for ((path, content) in other.files) {
-            if (path.startsWith(ASSETS)) {
+            if (path.startsWith("assets/")) {
                 files[path] = content
             }
         }
@@ -37,8 +37,6 @@ internal class PackArchive private constructor(private val files: SortedMap<Stri
     }
 
     companion object {
-        private const val ASSETS = "assets/"
-
         fun read(bytes: ByteArray): PackArchive {
             val files = sortedMapOf<String, ByteArray>()
 

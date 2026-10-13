@@ -10,10 +10,13 @@ import java.net.http.HttpResponse.BodyHandlers
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
+import java.time.Duration
 import java.util.zip.ZipFile
 import javax.imageio.ImageIO
 import kotlin.io.path.exists
 import kotlin.io.path.readText
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.toJavaDuration
 
 internal class VanillaAssets private constructor(private val root: Path) {
     fun exists(path: String): Boolean {
@@ -45,7 +48,10 @@ internal class VanillaAssets private constructor(private val root: Path) {
         }
 
         private fun download(cache: Path, version: String, target: Path) {
-            val http = HttpClient.newHttpClient()
+            val http = HttpClient.newBuilder()
+                .connectTimeout(10.seconds.toJavaDuration())
+                .build()
+
             val jarUrl = clientJarUrl(http, version)
 
             Files.createDirectories(cache)

@@ -11,35 +11,43 @@ import net.kyori.adventure.text.format.TextDecoration
 
 internal const val NAMESPACE = "open-toast"
 
-private class Glyph(val char: Char, val style: Style, val inline: ObjectComponent? = null) {
-    val advance: Int
+private class Glyph(val char: Char, val style: Style, val sprite: ObjectComponent? = null) {
+
+    val width: Int
         get() {
             val bold = if (style.hasDecoration(TextDecoration.BOLD)) 1 else 0
-            if (inline != null) {
-                return OBJECT_ADVANCE + bold
+
+            if (sprite != null) {
+                return SPRITE_WIDTH + bold
             }
 
-            val width = ADVANCES.getOrNull(char - FIRST_PRINTABLE)?.digitToInt() ?: DEFAULT_ADVANCE
+            val width = ASCII_WIDTH.getOrNull(char - SPACE)?.digitToInt() ?: FALLBACK_WIDTH
             return width + bold
         }
 
     companion object {
-        const val OBJECT = '￼'
+        const val SPRITE = '￼'
 
-        private const val OBJECT_ADVANCE = 8
-        private const val DEFAULT_ADVANCE = 6
-        private const val FIRST_PRINTABLE = ' '
-        private const val ADVANCES =
+        private const val SPRITE_WIDTH = 8
+        private const val FALLBACK_WIDTH = 6
+
+        private const val SPACE = ' '
+
+        /**
+         * Width for all the ascii characters (32-126)
+         * https://www.ascii-code.com/
+         */
+        private const val ASCII_WIDTH =
             "42466662444626266666666666225656766666666466666666666666666464663666665662653666666646666664247"
     }
 }
 
 private class Line(val glyphs: List<Glyph>) {
     val width: Int
-        get() = glyphs.sumOf { glyph -> glyph.advance }
+        get() = glyphs.sumOf(Glyph::width)
 
-    val hasInline: Boolean
-        get() = glyphs.any { glyph -> glyph.inline != null }
+    val hasSprite: Boolean
+        get() = glyphs.mapNotNull(Glyph::sprite).any()
 
     val isEmpty: Boolean
         get() = glyphs.isEmpty()
@@ -55,12 +63,12 @@ private class Line(val glyphs: List<Glyph>) {
 }
 
 private class ToastText private constructor(val lines: List<Line>) {
-    fun pinned(shifts: List<Int>): List<Int>? {
-        val inlineLinesUnshifted = lines.withIndex().all { (index, line) ->
-            shifts[index] == 0 || !line.hasInline
+    fun adjustShiftsForSprites(shifts: List<Int>): List<Int>? {
+        val noShiftedLineWithSprite = lines.withIndex().all { (index, line) ->
+            shifts[index] == 0 || !line.hasSprite
         }
 
-        if (inlineLinesUnshifted) {
+        if (noShiftedLineWithSprite) {
             return shifts
         }
 
@@ -91,7 +99,7 @@ private class ToastText private constructor(val lines: List<Line>) {
 
             when (component) {
                 is TextComponent -> component.content().forEach { char -> glyphs += Glyph(char, style) }
-                is ObjectComponent -> glyphs += Glyph(Glyph.OBJECT, style, component)
+                is ObjectComponent -> glyphs += Glyph(Glyph.SPRITE, style, component)
                 else -> return false
             }
 
@@ -118,6 +126,7 @@ private class ToastText private constructor(val lines: List<Line>) {
 
 
         private fun split(glyphs: List<Glyph>, separator: Char): List<MutableList<Glyph>> = buildList {
+            add(mutableListOf())
             for (glyph in glyphs) {
                 if (glyph.char == separator) {
                     add(mutableListOf())
@@ -132,67 +141,69 @@ private class ToastText private constructor(val lines: List<Line>) {
 internal object ToastLayout {
     const val TITLE_X = 30
     const val TOAST_WIDTH = 160
-    const val BACKGROUND_RIGHT = ''
-    const val BACKGROUND_LEFT = ''
-
     private const val MAX_LINE_WIDTH = 125
-    private const val COVER = ''
-    private const val COVER_ADVANCE = 125
-    private const val FIRST_NEGATIVE_SPACE = ''
-    private const val NEGATIVE_SPACES = 8
-    private const val BACKGROUND_RIGHT_ADVANCE = TOAST_WIDTH - TITLE_X + 1
-    private const val BACKGROUND_LEFT_ADVANCE = TITLE_X + 1
     private const val TUTORIAL_ICON_X = 6
 
-    private val ADVANCEMENT_SHIFTS = mapOf(
+    private const val COVER = ''
+    private const val COVER_ADVANCE = 125
+
+    private const val FIRST_NEGATIVE_SPACE = ''
+    private const val NEGATIVE_SPACES = 8
+
+    const val BACKGROUND_RIGHT = ''
+    const val BACKGROUND_LEFT = ''
+    private const val BACKGROUND_RIGHT_ADVANCE = TOAST_WIDTH - TITLE_X + 1
+    private const val BACKGROUND_LEFT_ADVANCE = TITLE_X + 1
+
+    private val ADVANCEMENT_LINE_SHIFTS = mapOf(
         1 to listOf(6),
         2 to listOf(11, 0),
         3 to listOf(15, 6, -3),
     )
 
-    private val CONTROL = font("toast")
-    private val TUTORIAL_ICONS = font("tutorial_icons")
+    private val TOAST_LAYOUT_FONT = font("toast")
+    private val TUTORIAL_ICONS_FONT = font("tutorial_icons")
 
     val fontShifts: List<Int>
         get() {
-            val advancement = ADVANCEMENT_SHIFTS.values.flatten()
-            val looks = (1..Look.MAX_LINES).flatMap { lines -> Look.shifts(lines) }
+            val advancement = ADVANCEMENT_LINE_SHIFTS.values.flatten()
+            val looks = (1..ToastStyle.MAX_LINES).flatMap { lines -> ToastStyle.shifts(lines) }
             return (advancement + looks).distinct().filter { shift -> shift != 0 }
         }
 
     fun advancement(title: Component): Component? {
         val text = ToastText.of(title, Style.empty(), MAX_LINE_WIDTH) ?: return null
-        val layout = ADVANCEMENT_SHIFTS[text.lines.size] ?: return null
-        val shifts = text.pinned(layout) ?: return null
+        val layout = ADVANCEMENT_LINE_SHIFTS[text.lines.size] ?: return null
+        val shifts = text.adjustShiftsForSprites(layout) ?: return null
 
         return Component.text { builder ->
-            builder.append(control(COVER + rewind(COVER_ADVANCE)))
+            builder.append(layoutText(COVER + rewind(COVER_ADVANCE)))
             appendLines(builder, text, shifts)
         }
     }
 
-    fun look(text: Component, look: Look, icon: TutorialIcon?): Component? {
-        val defaultStyle = Style.style().color(look.textColor).build()
-        val toastText = ToastText.of(text, defaultStyle, look.lineWidth) ?: return null
+    fun styled(text: Component, toastStyle: ToastStyle, icon: TutorialIcon?): Component? {
+        val defaultStyle = Style.style().color(toastStyle.textColor).build()
+        val toastText = ToastText.of(text, defaultStyle, toastStyle.lineWidth) ?: return null
         val lines = toastText.lines
-        if (lines.size > Look.MAX_LINES) {
+        if (lines.size > ToastStyle.MAX_LINES) {
             return null
         }
 
-        val shifts = toastText.pinned(Look.shifts(lines.size)) ?: return null
-        val background = font(look.id + Look.height(lines.size))
+        val shifts = toastText.adjustShiftsForSprites(ToastStyle.shifts(lines.size)) ?: return null
+        val background = font(toastStyle.id + ToastStyle.height(lines.size))
 
         return Component.text { builder ->
             builder.append(Component.text(BACKGROUND_RIGHT, background))
-            builder.append(control(rewind(BACKGROUND_RIGHT_ADVANCE + TITLE_X)))
+            builder.append(layoutText(rewind(BACKGROUND_RIGHT_ADVANCE + TITLE_X)))
             builder.append(Component.text(BACKGROUND_LEFT, background))
-            builder.append(control(rewind(BACKGROUND_LEFT_ADVANCE - look.textX)))
+            builder.append(layoutText(rewind(BACKGROUND_LEFT_ADVANCE - toastStyle.textX)))
             appendLines(builder, toastText, shifts)
 
             if (icon != null) {
-                val textEnd = look.textX + lines.last().width
-                builder.append(control(rewind(textEnd - TUTORIAL_ICON_X)))
-                builder.append(Component.text(icon.char, TUTORIAL_ICONS))
+                val textEnd = toastStyle.textX + lines.last().width
+                builder.append(layoutText(rewind(textEnd - TUTORIAL_ICON_X)))
+                builder.append(Component.text(icon.char, TUTORIAL_ICONS_FONT))
             }
         }
     }
@@ -201,7 +212,7 @@ internal object ToastLayout {
         text.lines.forEachIndexed { index, line ->
             if (index > 0) {
                 val previous = text.lines[index - 1]
-                result.append(control(rewind(previous.width)))
+                result.append(layoutText(rewind(previous.width)))
             }
 
             val shift = shifts[index]
@@ -219,8 +230,8 @@ internal object ToastLayout {
         }
     }
 
-    private fun control(text: String): Component {
-        return Component.text(text, CONTROL)
+    private fun layoutText(text: String): Component {
+        return Component.text(text, TOAST_LAYOUT_FONT)
     }
 
     private fun font(name: String): Style {
@@ -232,12 +243,12 @@ internal object ToastLayout {
 }
 
 private fun render(line: List<Glyph>, font: Key?): Component {
-    return Component.text().apply { builder ->
+    return Component.text { builder ->
         line.forEach { glyph ->
             builder.append(
-                glyph.inline?.children(emptyList())?.style(glyph.style)
+                glyph.sprite?.children(emptyList())?.style(glyph.style)
                     ?: Component.text(glyph.char, glyph.style.font(font))
             )
         }
-    }.build()
+    }
 }

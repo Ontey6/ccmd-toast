@@ -1,7 +1,7 @@
 package fyi.pauli.opentoast
 
 import com.destroystokyo.paper.profile.PlayerProfile
-import fyi.pauli.opentoast.internal.Look
+import fyi.pauli.opentoast.internal.ToastStyle
 import fyi.pauli.opentoast.internal.NAMESPACE
 import fyi.pauli.opentoast.internal.ToastLayout
 import fyi.pauli.opentoast.internal.ToastSender
@@ -39,17 +39,17 @@ sealed class Toast {
 
         @JvmStatic
         fun system(text: Component): Toast {
-            return LookToast(Look.SYSTEM, null, null, text)
+            return StyledToast(ToastStyle.SYSTEM, null, null, text)
         }
 
         @JvmStatic
         fun recipe(icon: ItemStack, text: Component): Toast {
-            return LookToast(Look.RECIPE, icon.clone(), null, text)
+            return StyledToast(ToastStyle.RECIPE, icon.clone(), null, text)
         }
 
         @JvmStatic
         fun tutorial(icon: TutorialIcon, text: Component): Toast {
-            return LookToast(Look.TUTORIAL, null, icon, text)
+            return StyledToast(ToastStyle.TUTORIAL, null, icon, text)
         }
     }
 }
@@ -75,14 +75,14 @@ private class AdvancementToast(
     }
 }
 
-private class LookToast(
-    private val look: Look,
+private class StyledToast(
+    private val toastStyle: ToastStyle,
     private val icon: ItemStack?,
     private val symbol: TutorialIcon?,
     private val text: Component,
 ) : Toast() {
     override fun show(player: Player) {
-        val title = ToastLayout.look(text, look, symbol)
+        val title = ToastLayout.styled(text, toastStyle, symbol)
         if (title == null) {
             fallback().show(player)
             return

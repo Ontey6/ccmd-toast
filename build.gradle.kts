@@ -21,11 +21,11 @@ allprojects {
 spotless {
     java {
         target("*/src/**/*.java")
-        licenseHeader("")
+        licenseHeaderFile(file("HEADER.txt"))
     }
 
     kotlin {
         target("*/src/**/*.kt")
-        licenseHeader("")
+        licenseHeaderFile(file("HEADER.txt"))
     }
 }

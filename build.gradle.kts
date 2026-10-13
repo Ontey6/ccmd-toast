@@ -9,7 +9,7 @@ plugins {
 
 allprojects {
     group = "fyi.pauli"
-    version = "0.0.4"
+    version = "0.1.4"
 
     repositories {
         mavenCentral()

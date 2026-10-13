@@ -8,17 +8,16 @@ package fyi.pauli.opentoast
 import fyi.pauli.opentoast.internal.PackArchive
 import fyi.pauli.opentoast.internal.PackBuilder
 import fyi.pauli.opentoast.internal.VanillaAssets
+import fyi.pauli.opentoast.internal.sha1Hex
 import net.kyori.adventure.resource.ResourcePackInfo
 import net.kyori.adventure.resource.ResourcePackRequest
 import org.bukkit.Bukkit
 import java.net.URI
 import java.nio.file.Path
-import java.security.MessageDigest
-import java.util.HexFormat
 import java.util.UUID
 
 class ToastPack private constructor(val bytes: ByteArray) {
-    val hash: String = HexFormat.of().formatHex(MessageDigest.getInstance("SHA-1").digest(bytes))
+    val hash: String = sha1Hex(bytes)
 
     val id: UUID = UUID.nameUUIDFromBytes(bytes)
 

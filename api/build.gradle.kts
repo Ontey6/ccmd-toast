@@ -37,8 +37,8 @@ publishing {
 
                 licenses {
                     license {
-                        name.set("GNU General Public License 3")
-                        url.set("https://www.gnu.org/licenses/gpl-3.0.txt")
+                        name.set("Mozilla Public License Version 2.0")
+                        url.set("https://www.mozilla.org/MPL/2.0/")
                     }
                 }
 
@@ -66,7 +66,7 @@ kotlin {
 val pack = tasks.register<Zip>("pack") {
     description = "Create resourcepack"
     from("resourcepack")
-    archiveFileName = "open-toast-pack.zip"
+    archiveFileName = "open-toast.zip"
     destinationDirectory = layout.buildDirectory.dir("pack")
     isPreserveFileTimestamps = false
     isReproducibleFileOrder = true

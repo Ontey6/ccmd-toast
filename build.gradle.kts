@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.paperweight.userdev) apply false
     alias(libs.plugins.paper.yml) apply false
     alias(libs.plugins.paper.run) apply false
+
+    alias(libs.plugins.spotless)
 }
 
 allprojects {
@@ -13,5 +15,17 @@ allprojects {
         mavenCentral()
         maven("https://repo.pauli.fyi/releases")
         maven("https://repo.papermc.io/repository/maven-public/")
+    }
+}
+
+spotless {
+    java {
+        target("*/src/**/*.java")
+        licenseHeader("")
+    }
+
+    kotlin {
+        target("*/src/**/*.kt")
+        licenseHeader("")
     }
 }

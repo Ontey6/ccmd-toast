@@ -31,7 +31,7 @@ class TestPlugin : JavaPlugin(), Listener {
         val cache = dataFolder.toPath().resolve("vanilla")
         val pack = ToastPack.build(cache, server.minecraftVersion)
 
-        packRequest = pack.request(URI(config.getString("pack-url")!!))
+        packRequest = pack.requestBuilder(URI(config.getString("pack-url")!!)).build()
         packServer = startPackServer(pack)
 
         server.pluginManager.registerEvents(this, this)

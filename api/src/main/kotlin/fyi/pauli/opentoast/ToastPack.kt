@@ -22,7 +22,7 @@ class ToastPack private constructor(val bytes: ByteArray) {
     val id: UUID = UUID.nameUUIDFromBytes(bytes)
 
     @JvmOverloads
-    fun buildRequest(url: URI, required: Boolean = true): ResourcePackRequest.Builder {
+    fun requestBuilder(url: URI, required: Boolean = true): ResourcePackRequest.Builder {
         return ResourcePackRequest.resourcePackRequest()
             .packs(info(url))
             .required(required)

@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    implementation("fyi.pauli:open-toast-api:1.1.5")
+    implementation("fyi.pauli.opentoast:open-toast-api:1.1.6")
 }
 ```
 

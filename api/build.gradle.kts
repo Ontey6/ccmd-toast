@@ -21,7 +21,7 @@ publishing {
         register<MavenPublication>(project.name) {
             from(components["java"])
 
-            this.groupId = project.group.toString()
+            this.groupId = "${project.group}.opentoast"
             this.artifactId = "open-toast-${project.name}"
             this.version = rootProject.version.toString()
 

@@ -1,5 +1,6 @@
 # ccmd-toast
-is a fork of [open-toast](https://github.com/kxmpxtxnt/open-toast) which is used inside [CustomCommand](https://github.com/Ontey6/CustomCommand)
+is a fork of [open-toast](https://github.com/kxmpxtxnt/open-toast) which is used
+inside [CustomCommand](https://github.com/Ontey6/CustomCommand)
 
 # open-toast
 
@@ -17,11 +18,11 @@ Add the dependency:
 
 ```kotlin
 repositories {
-    maven("https://repo.pauli.fyi/releases")
+	 maven("https://repo.pauli.fyi/releases")
 }
 
 dependencies {
-    implementation("fyi.pauli.opentoast:open-toast-api:1.1.6")
+	 implementation("fyi.pauli.opentoast:open-toast-api:1.1.6")
 }
 ```
 
@@ -46,17 +47,46 @@ player.tutorialToast(TutorialToast.Icon.MOUSE, Component.text("Look around"))
 
 ```java
 ToastPack pack = ToastPack.build(getDataFolder().toPath().resolve("vanilla"));
-player.sendResourcePacks(pack.requestBuilder(URI.create("https://example.com/pack.zip")).build());
+player.
 
-Toast.advancement(ItemType.DIAMOND.createItemStack(), Component.text("Hello!")).show(player);
-Toast.head(player.getPlayerProfile(), Component.text("New friend request")).show(player);
-Toast.system(Component.text("Server restart in 5 minutes")).show(player);
-Toast.recipe(ItemType.CAKE.createItemStack(), Component.text("Party perk unlocked")).show(player);
-Toast.tutorial(TutorialToast.Icon.MOUSE, Component.text("Look around")).show(player);
+sendResourcePacks(pack.requestBuilder(URI.create("https://example.com/pack.zip")).
+
+build());
+  
+  Toast.
+
+advancement(ItemType.DIAMOND.createItemStack(),Component.
+
+text("Hello!")).
+
+show(player);
+Toast.
+
+head(player.getPlayerProfile(),Component.
+
+text("New friend request")).
+
+show(player);
+Toast.
+
+system(Component.text("Server restart in 5 minutes")).
+
+show(player);
+Toast.
+
+recipe(ItemType.CAKE.createItemStack(),Component.
+
+text("Party perk unlocked")).
+
+show(player);
+Toast.
+
+tutorial(TutorialToast.Icon.MOUSE, Component.text("Look around")).
+
+show(player);
 ```
 
 If you already have a custom resource pack you can merge the open-toasts pack with your own pack!
-
 
 #### Kotlin
 
@@ -71,7 +101,12 @@ player.sendResourcePacks(merged.requestBuilder(URI("https://example.com/pack.zip
 
 ```java
 ToastPack pack = ToastPack.build(getDataFolder().toPath().resolve("vanilla"));
+
 ToastPack merged = pack.mergeInto(Files.readAllBytes(Path.of("your-pack.zip")));
 
-player.sendResourcePacks(merged.requestBuilder(URI.create("https://example.com/pack.zip")).build());
+player.
+
+sendResourcePacks(merged.requestBuilder(URI.create("https://example.com/pack.zip")).
+
+build());
 ```

@@ -10,7 +10,7 @@ package fyi.pauli.opentoast
  * Task and goal are silent.
  */
 enum class ToastFrame {
-    TASK,
-    GOAL,
-    CHALLENGE,
+	 TASK,
+	 GOAL,
+	 CHALLENGE,
 }

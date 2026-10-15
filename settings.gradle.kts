@@ -1,9 +1,7 @@
-rootProject.name = "open-toast"
+rootProject.name = "ccmd-toast"
 
-include(
-    "api",
-    "testplugin",
-)
+include("api", "testplugin")
+includeBuild("C:\\Users\\klett\\IdeaProjects\\CustomCommand")
 
 pluginManagement {
     repositories {

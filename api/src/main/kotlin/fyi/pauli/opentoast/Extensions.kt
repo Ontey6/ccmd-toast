@@ -7,6 +7,7 @@ package fyi.pauli.opentoast
 
 import com.destroystokyo.paper.profile.PlayerProfile
 import net.kyori.adventure.text.Component
+import ontey.ccmd.toast.TutorialToast
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
@@ -31,6 +32,6 @@ fun Player.recipeToast(icon: ItemStack, text: Component) {
 }
 
 @JvmSynthetic
-fun Player.tutorialToast(icon: TutorialIcon, text: Component) {
+fun Player.tutorialToast(icon: TutorialToast.Icon, text: Component) {
     Toast.tutorial(icon, text).show(this)
 }

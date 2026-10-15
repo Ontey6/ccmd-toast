@@ -5,7 +5,6 @@
  */
 package fyi.pauli.opentoast.internal
 
-import fyi.pauli.opentoast.TutorialIcon
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.ObjectComponent
@@ -13,6 +12,7 @@ import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.Style
 import net.kyori.adventure.text.format.TextDecoration
+import ontey.ccmd.toast.TutorialToast
 
 internal const val NAMESPACE = "open-toast"
 
@@ -187,7 +187,7 @@ internal object ToastLayout {
         }
     }
 
-    fun styled(text: Component, toastStyle: ToastStyle, icon: TutorialIcon?): Component? {
+    fun styled(text: Component, toastStyle: ToastStyle, tutorialIcon: TutorialToast.Icon?): Component? {
         val defaultStyle = Style.style().color(toastStyle.textColor).build()
         val toastText = ToastText.of(text, defaultStyle, toastStyle.lineWidth) ?: return null
         val lines = toastText.lines
@@ -205,10 +205,10 @@ internal object ToastLayout {
             builder.append(layoutText(rewind(BACKGROUND_LEFT_ADVANCE - toastStyle.textX)))
             appendLines(builder, toastText, shifts)
 
-            if (icon != null) {
+            if (tutorialIcon != null) {
                 val textEnd = toastStyle.textX + lines.last().width
                 builder.append(layoutText(rewind(textEnd - TUTORIAL_ICON_X)))
-                builder.append(Component.text(icon.char, TUTORIAL_ICONS_FONT))
+                builder.append(Component.text(tutorialIcon.char, TUTORIAL_ICONS_FONT))
             }
         }
     }

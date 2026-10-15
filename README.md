@@ -1,3 +1,6 @@
+# ccmd-toast
+is a fork of [open-toast](https://github.com/kxmpxtxnt/open-toast) which is used inside [CustomCommand](https://github.com/Ontey6/CustomCommand)
+
 # open-toast
 
 > Conquer minecraft toasts with your custom icons and messages.
@@ -32,11 +35,11 @@ You also need to send the pack to the player.
 val pack = ToastPack.build(dataFolder.toPath().resolve("vanilla"))
 player.sendResourcePacks(pack.requestBuilder(URI("https://example.com/pack.zip")).build())
 
-player.toast(ItemStack.of(Material.DIAMOND), Component.text("Hello!"))
+player.toast(ItemType.DIAMOND.createItemStack(), Component.text("Hello!"))
 player.toast(player.playerProfile, Component.text("New friend request"))
 player.systemToast(Component.text("Server restart in 5 minutes"))
-player.recipeToast(ItemStack.of(Material.CAKE), Component.text("Party perk unlocked"))
-player.tutorialToast(TutorialIcon.MOUSE, Component.text("Look around"))
+player.recipeToast(ItemType.CAKE.createItemStack(), Component.text("Party perk unlocked"))
+player.tutorialToast(TutorialToast.Icon.MOUSE, Component.text("Look around"))
 ```
 
 #### Java
@@ -45,11 +48,11 @@ player.tutorialToast(TutorialIcon.MOUSE, Component.text("Look around"))
 ToastPack pack = ToastPack.build(getDataFolder().toPath().resolve("vanilla"));
 player.sendResourcePacks(pack.requestBuilder(URI.create("https://example.com/pack.zip")).build());
 
-Toast.advancement(ItemStack.of(Material.DIAMOND), Component.text("Hello!")).show(player);
+Toast.advancement(ItemType.DIAMOND.createItemStack(), Component.text("Hello!")).show(player);
 Toast.head(player.getPlayerProfile(), Component.text("New friend request")).show(player);
 Toast.system(Component.text("Server restart in 5 minutes")).show(player);
-Toast.recipe(ItemStack.of(Material.CAKE), Component.text("Party perk unlocked")).show(player);
-Toast.tutorial(TutorialIcon.MOUSE, Component.text("Look around")).show(player);
+Toast.recipe(ItemType.CAKE.createItemStack(), Component.text("Party perk unlocked")).show(player);
+Toast.tutorial(TutorialToast.Icon.MOUSE, Component.text("Look around")).show(player);
 ```
 
 If you already have a custom resource pack you can merge the open-toasts pack with your own pack!

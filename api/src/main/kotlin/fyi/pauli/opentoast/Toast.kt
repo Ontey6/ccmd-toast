@@ -15,9 +15,15 @@ import io.papermc.paper.datacomponent.item.ResolvableProfile
 import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
+import ontey.ccmd.toast.HeadToast
+import ontey.ccmd.toast.RecipeToast
+import ontey.ccmd.toast.SystemToast
+import ontey.ccmd.toast.ToastProvider
+import ontey.ccmd.toast.TutorialToast
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.ItemType
 import java.util.logging.Logger
 
 private val LOGGER = Logger.getLogger(NAMESPACE)
@@ -37,10 +43,12 @@ sealed class Toast {
     }
 
     companion object {
+        val PROVIDER: ToastProvider = ToastProviderImpl()
+
         @JvmStatic
         @JvmOverloads
         fun advancement(icon: ItemStack, text: Component, frame: ToastFrame = ToastFrame.TASK): Toast {
-            return AdvancementToast(icon.clone(), text, frame)
+            return AdvancementToastImpl(icon.clone(), text, frame)
         }
 
         @JvmStatic
@@ -48,29 +56,29 @@ sealed class Toast {
         fun head(profile: PlayerProfile, text: Component, frame: ToastFrame = ToastFrame.TASK): Toast {
             val head = ItemStack.of(Material.PLAYER_HEAD)
             head.setData(DataComponentTypes.PROFILE, ResolvableProfile.resolvableProfile(profile))
-            return AdvancementToast(head, text, frame)
+            return HeadToastImpl(head, text, frame)
         }
 
         @JvmStatic
         fun system(text: Component): Toast {
-            return StyledToast(ToastStyle.SYSTEM, null, null, text)
+            return SystemToastImpl(text)
         }
 
         @JvmStatic
         fun recipe(icon: ItemStack, text: Component): Toast {
-            return StyledToast(ToastStyle.RECIPE, icon.clone(), null, text)
+            return RecipeToastImpl(icon.clone(), text)
         }
 
         @JvmStatic
-        fun tutorial(icon: TutorialIcon, text: Component): Toast {
-            return StyledToast(ToastStyle.TUTORIAL, null, icon, text)
+        fun tutorial(symbol: TutorialToast.Icon, text: Component): Toast {
+            return TutorialToastImpl(symbol, text)
         }
     }
 }
 
-private class AdvancementToast(
+private open class AdvancementToast(
     private val icon: ItemStack,
-    private val text: Component,
+    text: Component,
     private val frame: ToastFrame,
 ) : Toast() {
     init {
@@ -90,13 +98,13 @@ private class AdvancementToast(
     }
 }
 
-private class StyledToast(
-    private val toastStyle: ToastStyle,
+private abstract class StyledToast(
+    toastStyle: ToastStyle,
     private val icon: ItemStack?,
-    private val symbol: TutorialIcon?,
-    private val text: Component,
+    tutorialIcon: TutorialToast.Icon?,
+    private val text: Component
 ) : Toast() {
-    private val title = ToastLayout.styled(text, toastStyle, symbol)
+    private val title = ToastLayout.styled(text, toastStyle, tutorialIcon)
 
     private val fallback by lazy {
         fallbackWarn(text)
@@ -120,5 +128,109 @@ private class StyledToast(
 
     private companion object {
         val NO_ICON = Key.key(NAMESPACE, "empty")
+    }
+}
+
+// CustomCommand compat
+
+private class ToastProviderImpl : ToastProvider {
+    override fun advancementToast(
+        text: Component,
+        icon: ItemStack
+    ): ontey.ccmd.toast.AdvancementToast {
+        return AdvancementToastImpl(icon.clone(), text, ToastFrame.TASK)
+    }
+
+    override fun headToast(
+        text: Component,
+        profile: ResolvableProfile
+    ): HeadToast {
+        val icon = ItemType.PAPER.createItemStack()
+        icon.setData(DataComponentTypes.PROFILE, profile)
+
+        return HeadToastImpl(icon, text, ToastFrame.TASK)
+    }
+
+    override fun recipeToast(text: Component, icon: ItemStack): RecipeToast {
+        return RecipeToastImpl(icon, text)
+    }
+
+    override fun systemToast(text: Component): SystemToast {
+        return SystemToastImpl(text)
+    }
+
+    override fun tutorialToast(text: Component, icon: TutorialToast.Icon): TutorialToast {
+        return TutorialToastImpl(icon, text)
+    }
+
+}
+
+private class AdvancementToastImpl(
+    private val icon: ItemStack,
+    private val text: Component,
+    frame: ToastFrame
+) : AdvancementToast(icon, text, frame), ontey.ccmd.toast.AdvancementToast {
+    override fun text(): Component {
+        return text
+    }
+
+    override fun icon(): ItemStack {
+        return icon
+    }
+}
+
+private class HeadToastImpl(
+    private val head: ItemStack,
+    private val text: Component,
+    frame: ToastFrame
+) : AdvancementToast(head, text, frame), HeadToast {
+    override fun text(): Component {
+        return text
+    }
+
+    override fun icon(): ItemStack {
+        return head
+    }
+}
+
+private class RecipeToastImpl(
+    icon: ItemStack?,
+    private val text: Component
+) : StyledToast(ToastStyle.RECIPE, icon, null, text), RecipeToast {
+    override fun text(): Component {
+        return text
+    }
+
+    override fun icon(): ItemStack? {
+        return null
+    }
+}
+
+private class SystemToastImpl(
+    private val text: Component
+) : StyledToast(ToastStyle.SYSTEM, null, null, text), SystemToast {
+    override fun text(): Component {
+        return text
+    }
+
+    override fun icon(): ItemStack? {
+        return null
+    }
+}
+
+private class TutorialToastImpl(
+    private val tutorialIcon: TutorialToast.Icon,
+    private val text: Component
+) : StyledToast(ToastStyle.TUTORIAL, null, tutorialIcon, text), TutorialToast {
+    override fun text(): Component {
+        return text
+    }
+
+    override fun icon(): ItemStack? {
+        return null
+    }
+
+    override fun tutorialIcon(): TutorialToast.Icon {
+        return tutorialIcon
     }
 }

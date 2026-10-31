@@ -47,43 +47,13 @@ player.tutorialToast(TutorialToast.Icon.MOUSE, Component.text("Look around"))
 
 ```java
 ToastPack pack = ToastPack.build(getDataFolder().toPath().resolve("vanilla"));
-player.
+player.sendResourcePacks(pack.requestBuilder(URI.create("https://example.com/pack.zip")).build());
 
-sendResourcePacks(pack.requestBuilder(URI.create("https://example.com/pack.zip")).
-
-build());
-  
-  Toast.
-
-advancement(ItemType.DIAMOND.createItemStack(),Component.
-
-text("Hello!")).
-
-show(player);
-Toast.
-
-head(player.getPlayerProfile(),Component.
-
-text("New friend request")).
-
-show(player);
-Toast.
-
-system(Component.text("Server restart in 5 minutes")).
-
-show(player);
-Toast.
-
-recipe(ItemType.CAKE.createItemStack(),Component.
-
-text("Party perk unlocked")).
-
-show(player);
-Toast.
-
-tutorial(TutorialToast.Icon.MOUSE, Component.text("Look around")).
-
-show(player);
+Toast.advancement(ItemType.DIAMOND.createItemStack(),Component.text("Hello!")).show(player);
+Toast.head(player.getPlayerProfile(), Component.text("New friend request")).show(player);
+Toast.system(Component.text("Server restart in 5 minutes")).show(player);
+Toast.recipe(ItemType.CAKE.createItemStack(), Component.text("Party perk unlocked")).show(player);
+Toast.tutorial(TutorialToast.Icon.MOUSE, Component.text("Look around")).show(player);
 ```
 
 If you already have a custom resource pack you can merge the open-toasts pack with your own pack!
@@ -101,12 +71,7 @@ player.sendResourcePacks(merged.requestBuilder(URI("https://example.com/pack.zip
 
 ```java
 ToastPack pack = ToastPack.build(getDataFolder().toPath().resolve("vanilla"));
-
 ToastPack merged = pack.mergeInto(Files.readAllBytes(Path.of("your-pack.zip")));
 
-player.
-
-sendResourcePacks(merged.requestBuilder(URI.create("https://example.com/pack.zip")).
-
-build());
+player.sendResourcePacks(merged.requestBuilder(URI.create("https://example.com/pack.zip")).build());
 ```

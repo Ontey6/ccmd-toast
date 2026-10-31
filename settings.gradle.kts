@@ -1,6 +1,6 @@
 rootProject.name = "ccmd-toast"
 
-include("api", "testplugin")
+include("api")
 includeBuild("C:\\Users\\klett\\IdeaProjects\\CustomCommand")
 
 pluginManagement {

@@ -7,8 +7,10 @@ description = "Custom toasts for Paper servers"
 
 dependencies {
 	 paperweight.paperDevBundle(libs.versions.paper.get())
-	 // If you contribute, use JitPack. I need this to make changes to the latest version
-	 compileOnly("ontey:CustomCommand:2.4.4")
+
+	 // lombok
+	 compileOnly("org.projectlombok:lombok:1.18.42")
+	 annotationProcessor("org.projectlombok:lombok:1.18.42")
 }
 
 kotlin {

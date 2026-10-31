@@ -2,7 +2,7 @@ plugins {
 	 alias(libs.plugins.kotlin.jvm) apply false
 	 alias(libs.plugins.paperweight.userdev) apply false
 	 alias(libs.plugins.paper.yml) apply false
-	 alias(libs.plugins.paper.run) apply false
+	 //alias(libs.plugins.paper.run) apply false
 
 	 alias(libs.plugins.spotless)
 }

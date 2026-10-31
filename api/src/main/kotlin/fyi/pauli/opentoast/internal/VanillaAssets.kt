@@ -73,7 +73,7 @@ internal class VanillaAssets private constructor(private val root: Path) {
 				try {
 					 get(http, clientJar.url, BodyHandlers.ofFile(jar))
 					 val sha1 = sha1Hex(jar.readBytes())
-					 check(sha1 == clientJar.sha1) { "client jar has SHA-1 $sha1, expected ${clientJar.sha1}" }
+					 check(sha1 == clientJar.sha1) { "client jar has SHA-1 '$sha1', expected '${clientJar.sha1}'" }
 					 extract(jar, unpacked)
 
 					 target.toFile().deleteRecursively()
